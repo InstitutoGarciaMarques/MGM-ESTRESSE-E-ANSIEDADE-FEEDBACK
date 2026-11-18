@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feedback – Método Garcia Marques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1130;--card:#121a45;--line:#2a3470;--gold:#e3bf74;--txt:#f4efe3;--mut:#b9b3e6;--err:#ff8a8a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',Arial,sans-serif;background:radial-gradient(circle at 10% 0,rgba(80,60,200,.3),transparent 45%),var(--bg);color:var(--txt);min-height:100vh;padding:40px 16px 60px}
+.wrap{max-width:720px;margin:0 auto}
+.brand{color:var(--gold);letter-spacing:4px;font-size:12px;font-weight:600;text-transform:uppercase}
+h1{font-family:'Lora',Georgia,serif;font-size:clamp(28px,5vw,40px);line-height:1.15;margin:10px 0 12px}
+h1 span{color:var(--gold)}
+.lead{color:var(--mut);font-size:15px;line-height:1.6;margin-bottom:28px}
+form{display:flex;flex-direction:column;gap:22px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+label.t,.q>span.t{display:block;font-weight:500;font-size:16px;line-height:1.45;margin-bottom:12px}
+.t b{color:var(--gold);margin-right:6px}
+textarea,input[type=text]{width:100%;background:#0b1130;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;font-size:15px;line-height:1.5;resize:vertical}
+textarea{min-height:110px}
+textarea:focus,input:focus{outline:2px solid var(--gold);outline-offset:1px}
+.opts{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.opts label{flex:1 1 140px;display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;background:#0b1130}
+.opts input{accent-color:#e3bf74;width:18px;height:18px}
+.opts label:has(input:checked){border-color:var(--gold)}
+button{background:var(--gold);color:#0b1130;border:0;border-radius:50px;font:600 17px 'Poppins',Arial,sans-serif;padding:16px 36px;cursor:pointer;align-self:flex-start}
+button:disabled{opacity:.6;cursor:wait}
+.msg{border-radius:12px;padding:16px 18px;font-size:15px;line-height:1.5;display:none}
+.msg.ok{display:block;background:rgba(227,191,116,.12);border:1px solid var(--gold)}
+.msg.er{display:block;border:1px solid var(--err);color:var(--err)}
+.hp{position:absolute;left:-9999px;height:0;overflow:hidden}
+.foot{margin-top:34px;color:var(--mut);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Instituto Garcia Marques</div>
+  <h1>Feedback do <span>Método Garcia Marques</span> de Redução do Estresse e Ansiedade</h1>
+  <p class="lead">Sua opinião ajuda a melhorar o método e a inspirar outras pessoas. Leva cerca de 3 minutos.</p>
+
+  <form id="f" novalidate>
+    <div class="q"><label class="t" for="nome">Seu nome <b style="margin:0">*</b></label><input type="text" id="nome" maxlength="120" autocomplete="name" required></div>
+    <div class="q"><label class="t" for="obstaculo"><b>1.</b>Qual foi o obstáculo que poderia ter feito você não comprar/começar?</label><textarea id="obstaculo" maxlength="3000"></textarea></div>
+    <div class="q"><label class="t" for="resultado"><b>2.</b>O que você obteve como principal resultado até o momento?</label><textarea id="resultado" maxlength="3000"></textarea></div>
+    <div class="q"><label class="t" for="detalhe"><b>3.</b>Qual detalhe ou recurso específico você mais gostou?</label><textarea id="detalhe" maxlength="3000"></textarea></div>
+    <div class="q"><label class="t" for="beneficios"><b>4.</b>Quais são outros benefícios que você destacaria?</label><textarea id="beneficios" maxlength="3000"></textarea></div>
+    <div class="q"><span class="t"><b>5.</b>Você recomendaria esse programa? Se sim, por quê?</span>
+      <div class="opts"><label><input type="radio" name="rec" value="sim"> Sim</label><label><input type="radio" name="rec" value="nao"> Não</label></div>
+      <label class="t" for="porque" style="font-size:14px;color:var(--mut)">Por quê?</label><textarea id="porque" maxlength="3000"></textarea></div>
+    <div class="q"><label class="t" for="extra"><b>6.</b>Existe mais alguma coisa que você gostaria de acrescentar?</label><textarea id="extra" maxlength="3000"></textarea></div>
+    <div class="hp" aria-hidden="true"><input type="text" id="site" tabindex="-1" autocomplete="off"></div>
+    <div id="msg" class="msg" role="status"></div>
+    <button type="submit" id="btn">Enviar feedback</button>
+  </form>
+  <p class="foot">© 2026 Instituto Garcia Marques</p>
+</div>
+<script>
+const URL_API="https://eqreyxzsfdnusbbonlcg.supabase.co/rest/v1/feedback_reducao_estresse";
+const KEY="sb_publishable_NWhR3OFH2XcjrXo0BrbbeA_jA7DAzpb";
+const $=id=>document.getElementById(id);
+$("f").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const m=$("msg"); m.className="msg";
+  if($("site").value) return;
+  const v=id=>$(id).value.trim()||null;
+  const rec=document.querySelector('input[name=rec]:checked');
+  const body={nome:v("nome"),obstaculo:v("obstaculo"),resultado:v("resultado"),detalhe_preferido:v("detalhe"),
+    outros_beneficios:v("beneficios"),recomendaria:rec?rec.value:null,recomendaria_porque:v("porque"),adicional:v("extra")};
+  if(!body.nome){m.className="msg er";m.textContent="Preencha o seu nome para enviar.";$("nome").focus();return;}
+  if(!body.obstaculo&&!body.resultado&&!body.detalhe_preferido&&!body.outros_beneficios&&!body.recomendaria_porque&&!body.adicional&&!body.recomendaria){
+    m.className="msg er";m.textContent="Responda pelo menos uma pergunta antes de enviar.";return;}
+  $("btn").disabled=true;
+  try{
+    const r=await fetch(URL_API,{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(body)});
+    if(!r.ok) throw new Error(r.status);
+    $("f").reset();
+    m.className="msg ok";m.textContent="Obrigado! Seu feedback foi enviado com sucesso.";
+  }catch(err){
+    m.className="msg er";m.textContent="Não foi possível enviar agora. Verifique sua conexão e tente novamente.";
+  }
+  $("btn").disabled=false;
+});
+</script>
+</body>
+</html>
